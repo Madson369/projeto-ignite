@@ -4,26 +4,33 @@ import OutcomeImg from "../../assets/saidas.svg";
 import { Container, TransactionTypeContainer, RadioBox } from "./styles";
 import closeImg from "../../assets/close.svg";
 import { TransactionsTable } from "../TransactionsTable";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { api } from "../../services/api";
+import { TransactionsContext } from "../../TransactionsContext";
 
 export function NewTransactionModal(props) {
+  const { createTransaction } = useContext(TransactionsContext);
   const [type, setType] = useState("deposit");
 
   const [title, setTitle] = useState("");
-  const [value, setValue] = useState("");
+  const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState("");
 
-  const handleCreateNewTransaction = (event) => {
+  const handleCreateNewTransaction = async (event) => {
     event.preventDefault();
-    const data = {
+
+    await createTransaction({
       title,
-      value,
+      amount,
       category,
       type,
-    };
+    });
 
-    api.post("/transactions", data);
+    setTitle("");
+    setAmount(0);
+    setCategory("");
+    setType("deposit");
+    props.handleCloseNewTransactionModal();
   };
 
   return (
@@ -49,8 +56,8 @@ export function NewTransactionModal(props) {
         />
         <input
           type="number"
-          value={value}
-          onChange={(event) => setValue(Number(event.target.value))}
+          value={amount}
+          onChange={(event) => setAmount(Number(event.target.value))}
           placeholder="Valor"
         />
 
